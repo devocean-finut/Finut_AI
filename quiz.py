@@ -11,32 +11,40 @@ load_dotenv()
 #환경변수에서 api키 읽기
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
-def extract_terms(url):
+# URL 설정
+url = 'https://uppity.co.kr/esg/'
+
+def get_term_links(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
 
-    terms = soup.find_all('h2', class_='term-tittle')
-    definitions = soup.find_all('p', class_='term-description')
+    # 모든 카드의 링크 추출
+    cards = soup.find_all('a', class_='elementor-post__thumbnail__link')
+    links = [card['href'] for card in cards]
 
-    economy_terms = []
+    #디버깅
+    print(links)
     
+    return links
 
-    for term, definition in zip(terms, definitions):
-        economy_terms.append({
-            'term': term.get_text(),
-            'definition': definition.get_text()
-        })
+def extract_term_details(link):
+    response = requests.get(link)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    term_title = soup.find('h1', class_='entry-title').get_text()
+    term_definition = soup.find('div', class_='entry-content').get_text().strip()
     
-    return economy_terms
+    return {
+        'term': term_title,
+        'definition': term_definition
+    }
 
-#퀴즈를 생성하는 함수
 def generate_quiz(economy_terms):
     term = random.choice(economy_terms)
-    promt = (f"Generate a true or false quiz question based on the following description.\n"
+    prompt = (f"Generate a true or false quiz question based on the following description.\n"
               f"Description: {term['definition']}\n"
               f"Question format: '[Description]', True or False?")
-    # 
-    
+
     response = openai.Completion.create(
         engine="text-davinci-003",
         prompt=prompt,
@@ -46,11 +54,12 @@ def generate_quiz(economy_terms):
     quiz = response.choices[0].text.strip()
     return quiz
 
-#url 설정
-url = 'https://uppity.co.kr/economy-dictionary/'
-economy_terms = extract_terms(url)
+term_links = get_term_links(url)
+economy_terms = [extract_term_details(link) for link in term_links]
 
-#예시 퀴즈 생성
-quiz = generate_quiz(economy_terms)
-print(quiz)
-
+# 예시 퀴즈 생성
+if economy_terms:
+    quiz = generate_quiz(economy_terms)
+    print(quiz)
+else:
+    print("No terms found. Please check the URL or HTML structure.")
