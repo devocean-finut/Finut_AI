@@ -1,3 +1,4 @@
+import json
 import requests
 from bs4 import BeautifulSoup
 
@@ -43,11 +44,15 @@ term_links = get_term_links(base_url, num_pages)
 
 #print("All extracted links:", term_links)
 
-print("1")
+#print("1")
 
 # 각 링크에서 용어와 정의를 추출하여 리스트에 저장
 economy_terms = [extract_term_details(link) for link in term_links]
 
 # 추출된 용어와 정의 출력
-for term in economy_terms:
-    print(f"Term: {term['term']}\nDescription: {term['description']}\n")
+# for term in economy_terms:
+#     print(f"Term: {term['term']}\nDescription: {term['description']}\n")
+
+# JSON 파일로 저장
+with open('economy_terms.json', 'w', encoding='utf-8') as f:
+    json.dump(economy_terms, f, ensure_ascii=False, indent=4)
