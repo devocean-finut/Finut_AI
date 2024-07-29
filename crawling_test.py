@@ -24,8 +24,30 @@ def get_term_links(base_url, num_pages):
     
     return all_links
 
+def extract_term_details(link):
+    response = requests.get(link)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    #용어와 정의 추출
+    term_title = soup.find('h2', class_='elementor-heading-title').get_text()
+    term_description = " ".join([p.get_text() for p in soup.find_all('p')]).strip()
+
+    return {
+        'term': term_title,
+        'description': term_description
+    }
+
 base_url = 'https://uppity.co.kr/economy-dictionary'
 num_pages = 12  # 총 페이지 수
 term_links = get_term_links(base_url, num_pages)
 
-print("All extracted links:", term_links)
+#print("All extracted links:", term_links)
+
+print("1")
+
+# 각 링크에서 용어와 정의를 추출하여 리스트에 저장
+economy_terms = [extract_term_details(link) for link in term_links]
+
+# 추출된 용어와 정의 출력
+for term in economy_terms:
+    print(f"Term: {term['term']}\nDescription: {term['description']}\n")
