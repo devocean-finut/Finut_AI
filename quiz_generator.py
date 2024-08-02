@@ -2,9 +2,7 @@ import openai
 import os
 import json
 import random
-import requests
-from openai import load_workbook
-from openpyxl.utils import get_column_letter
+from openpyxl import load_workbook
 from dotenv import load_dotenv
 
 # .env 파일의 환경 변수 로드
@@ -32,6 +30,7 @@ def generate_quiz(term, description):
     quiz = response.choices[0].text.strip()
     return quiz
 
+# 엑셀 파일 경로
 excel_path = '/Users/user/Desktop/Finut_Quiz.xlsx'
 
 # 엑셀 파일 열기
@@ -60,7 +59,7 @@ if economy_terms:
         ws[f'C{row}'] = question
         ws[f'D{row}'] = answer
 
-# 엑셀 파일 저장
+    # 엑셀 파일 저장
     wb.save(excel_path)
     print("Quiz data successfully saved to the Excel file.")
 else:
