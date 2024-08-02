@@ -1,11 +1,14 @@
 import openai
 import os
+import prompt
 from dotenv import load_dotenv
 import requests
 from bs4 import BeautifulSoup
+from random import random
+
 
 #.env 파일의 환경변수 로드
-load_dorenv()
+load_dotenv()
 
 #환경변수에서 api키 읽기
 openai.api_key = os.getenv('OPENAI_API_KEY')
@@ -45,7 +48,7 @@ def generate_quiz(economy_terms):
 
 #url 설정
 url = 'https://uppity.co.kr/economy-dictionary/'
-economy_temrs = extract_terms(url)
+economy_terms = extract_terms(url)
 
 #예시 퀴즈 생성
 quiz = generate_quiz(economy_terms)
