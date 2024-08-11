@@ -1,77 +1,66 @@
-from openai import OpenAI
-import os
+from transformers import LlamaForCausalLM, LlamaTokenizer
 import json
-import random
-from openpyxl import load_workbook
-from dotenv import load_dotenv
+import pandas as pd
 
-# .env 파일의 환경 변수 로드
-load_dotenv()
+model_name = "meta-llama/Meta-Llama-3.1-70B-Instruct" # llama3 사용
+tokenizer = LlamaTokenizer.from_pretrained(model_name)
+model = LlamaForCausalLM.from_pretrained(model_name)
 
-# OpenAI API 키 설정
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# 텍스트 생성 함수
+def generate_quiz_prompt(term, description):
+    prompt = f"""
+    I want you to generate a quiz question and an answer based on the following economic term and its description.
+    
+    Term: {term}
+    Description: {description}
+    
+    make a quiz for me!
+    
+    Format the output as follows:
+    Question: <your generated question>
+    Answer: <your generated answer>
+    """
 
-# economy_terms.json 파일에서 데이터를 읽어오기
-with open('economy_terms.json', 'r', encoding='utf-8') as f:
-    economy_terms = json.load(f)
+    inputs = tokenizer(prompt, return_tensors="pt")
+    outputs = model.generate(inputs["input_ids"], max_length=200)
 
-def generate_quiz(term_info):
-    term = term_info['term']
-    description = term_info['description']
+    # 출력에서 질문과 답을 분리
+    generated_text = tokenizer.batch_decode(outputs[0], skip_special_tokens=True)
 
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant that creates quiz questions."},
-        {"role": "user",
-         "content": f"Generate a true or false quiz question based on the following description.\nTerm: {term}\nDescription: {description}\nQuestion format: '[Description]', True or False?"}
-    ]
+    # "Question:" 다음에 시작하는 텍스트로 질문과 답을 분리
+    question_answer_split = generated_text.split("Answer:")
 
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=messages,
-        max_tokens=100
-    )
+    question = question_answer_split[0].strip()
+    answer = question_answer_split[1].strip() \
+        if len(question_answer_split) > 1 else "Answer not found"
 
-    quiz = response.choices[0].text.strip()
-    return quiz
+    return question, answer
 
-# 예시 퀴즈 생성 및 출력
-if economy_terms:
-    quiz = generate_quiz(random.choice(economy_terms))
-    print(quiz)
-else:
-    print("Cannot generate quiz")
+# JSON 파일 데이터 로드
+with open('economy_terms_modified.json', 'r', encoding='utf-8') as file:
+    data = json.load(file)
 
-# 엑셀 파일 경로
-# excel_path = '/Users/user/Desktop/Finut_Quiz.xlsx'
+# 퀴즈 생성 및 엑셀 저장 준비
+quiz_data = []
 
-# 엑셀 파일 열기
-# wb = load_workbook(excel_path)
-# ws = wb.active
+for entry in data:
+    term = entry['term']
+    description = entry['description']
 
-# 첫 번째 빈 행 찾기
-# def get_first_empty_row(worksheet):
-#     for row in range(2, worksheet.max_row + 2):
-#         if worksheet.cell(row=row, column=1).value is None:
-#             return row
-#     return worksheet.max_row + 1
+    # llama 모델로 퀴즈 생성
+    question, answer = generate_quiz_prompt(term, description)
 
-# 예시 퀴즈 생성 및 엑셀 파일에 저장
-# if economy_terms:
-#     for term_info in economy_terms:
-#         term = term_info['term']
-#         description = term_info['description']
-#         question = generate_quiz(term, description)
-#         answer = "T" if "True" in question else "F"
-#
-#         # 엑셀 파일에 데이터 쓰기
-#         row = get_first_empty_row(ws)
-#         ws[f'A{row}'] = term
-#         ws[f'B{row}'] = description
-#         ws[f'C{row}'] = question
-#         ws[f'D{row}'] = answer
-#
-#     # 엑셀 파일 저장
-#     wb.save(excel_path)
-#     print("Quiz data successfully saved to the Excel file.")
-# else:
-#     print("No terms found. Please check the economy_terms.json file.")
+    # 데이터 리스트에 저장
+    quiz_data.append({
+        "Term": term,
+        "Description": description,
+        "Question": question,
+        "Answer": answer
+    })
+
+df = pd.DataFrame(quiz_data)
+
+excel_path = '/Users/user/Desktop/Finut_Quiz.xlsx'
+df.to_excel(excel_path, index=False)
+
+print(f"으아아아아 끝!!")
