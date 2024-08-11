@@ -1,4 +1,4 @@
-import openai
+from openai import OpenAI
 import os
 import json
 import random
@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # OpenAI API 키 설정
-openai.api_key = os.getenv('OPENAI_API_KEY')
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # economy_terms.json 파일에서 데이터를 읽어오기
 with open('economy_terms.json', 'r', encoding='utf-8') as f:
@@ -25,7 +25,7 @@ def generate_quiz(term_info):
          "content": f"Generate a true or false quiz question based on the following description.\nTerm: {term}\nDescription: {description}\nQuestion format: '[Description]', True or False?"}
     ]
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=messages,
         max_tokens=100
