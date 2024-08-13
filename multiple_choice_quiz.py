@@ -6,29 +6,13 @@ import requests
 def generate_quiz_prompt_with_ollama(term, description):
     prompt = f"""
     I want you to generate a quiz question and an answer based on the following economic term and its description.
+    Make the questions and answers in Korean!!
 
     Term: {term}
     Description: {description}
 
-    각 term과 description 쌍마다 true/false 유형이나 객관식 유형 중 더 적합한 유형을 골라서 문제를 만들어줘.
+    퀴즈 예시와 구체적인 설명을 해줄게.
 
-    각 유형에 대한 예시와 구체적인 설명을 해줄게.
-
-    1. true/false 문제
-    description에 있는 내용을 바탕으로 문장을 만들고, 해당 문장이 term에 관한 설명이 맞는지 true or false로 답을 내줘.
-
-    다음은 해당 문제 유형에 대한 예시야:
-    - term: "52주 신고가"
-    - description: "52주 신고가는 특정 주식이 지난 52주(1년) 동안 기록한 가장 높은 주가를 말해요."
-    - Question: “52주 신고가는 특정 주식이 지난 52주(1년) 동안 기록한 가장 높은 주가이다.”
-    - Answer: “true”
-
-    - term: "DTI"
-    - description: "#DTI 🏷️ DTI(Debt to Income : 총부채상환비율)는 연 소득 대비 금융비용 부담률을 의미합니다. 내가 가진 모든 대출의 원리금 상환금액을 합쳐 따지는 DSR보다는 유한 기준입니다.”
-    - question: “총부재상환비율인 DTI는 내가 가진 모든 대출의 원리금 상환금액을 합쳐 따지는 DSR보다 엄격한 기준이다.”
-    - answer: “false”
-
-    2. 객관식 문제
     description에 있는 내용으로 문장을 만들어 알맞은 term을 맞추는 객관식 문제를 만들어줘.
     각 선지는 option1, 2, 3에 저장해줘.
 
@@ -79,21 +63,22 @@ def generate_quiz_prompt_with_ollama(term, description):
         answer_part = question_answer_split[1].strip()
 
         # 옵션이 있는 경우와 없는 경우 구분
-        if "Option1" in answer_part:
+        if "Option1:" in answer_part:
             answer, options = answer_part.split("Option1:", 1)
             answer = answer.strip()
 
             # 옵션 분리
-            option_parts = options.split("Option2:")
-            option1 = option_parts[0].strip()
-            if len(option_parts) > 1:
-                option2_parts = option_parts[1].split("Option3:")
-                option2 = option2_parts[0].strip()
-                if len(option2_parts) > 1:
-                    option3 = option2_parts[1].strip()
+            option1 = options.strip()
+            if "Option2:" in option1:
+                option1, option2 = option1.split("Option2:", 1)
+                option1 = option1.strip()
 
+                if "Option3:" in option2:
+                    option2, option3 = option2.split("Option3:", 1)
+                    option2 = option2.strip()
+                    option3 = option3.strip()
         else:
-            answer = answer_part
+            answer = answer_part  # Option1이 없는 경우 answer만 할당
 
     return question, answer, option1, option2, option3
 
@@ -127,7 +112,7 @@ for entry in data:
     })
 
 df = pd.DataFrame(quiz_data)
-excel_path = '/Users/user/Desktop/Finut_Quiz.xlsx'
+excel_path = '/Users/user/Desktop/Finut_Quiz_multiple_choice.xlsx'
 df.to_excel(excel_path, index=False)
 
 print(f"으아아아아 끝!!")
