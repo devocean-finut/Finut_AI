@@ -1,10 +1,13 @@
-from transformers import LlamaForCausalLM, LlamaTokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import pandas as pd
+import torch
+
+torch.backends.quantized.engine = 'none'
 
 model_name = "Bllossom/llama-3.1-Korean-Bllossom-405B" # llama3 사용
-tokenizer = LlamaTokenizer.from_pretrained(model_name)
-model = LlamaForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name, low_cpu_mem_usage=False).to("cpu")
 
 # 텍스트 생성 함수
 def generate_quiz_prompt(term, description):
