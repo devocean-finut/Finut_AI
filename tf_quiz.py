@@ -78,7 +78,7 @@ for entry in data:
     print(f"Generating quiz for term: {term}")
 
     # Ollama 모델로 퀴즈 생성
-    question, answer, option1, option2, option3 = generate_quiz_prompt_with_ollama(term, description)
+    question, answer = generate_quiz_prompt_with_ollama(term, description)
 
     # 데이터 리스트에 저장
     quiz_data.append({
