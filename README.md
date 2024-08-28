@@ -1,7 +1,7 @@
 
 ## Function
 
-# 경제 퀴즈 만들기 
+### 경제 퀴즈 만들기 
 
 __Directory Architecture__
 
@@ -16,20 +16,20 @@ __Directory Architecture__
   - modify_description.py
   - modify_quiz.py
 
-# 실시간 인기 주식
+### 실시간 인기 주식
 
 __Directory Architecture__
 
 
-# 주식 정보 만들기
+### 주식 정보 만들기
 
 __Directory Architecture__
 
 
 
-# Git Convention
+## Git Convention
 
-## Commit Rule
+### Commit Rule
 ```
 __Action__ FileName__ : __Description__
 ```
@@ -38,7 +38,7 @@ __Action__ FileName__ : __Description__
   - update: 파일 수정
   - remove: 파일 삭제
 
-# Issue/PR Rule
+### Issue/PR Rule
 ```
 [TYPE] TITLE
 ```
@@ -47,7 +47,7 @@ __Action__ FileName__ : __Description__
   - FIX: 기존에 개발된 내용 수정
   - DOC: README등 문서 관령 사항
 
-# Branch Rule
+### Branch Rule
 ```
 TYPE/BRANCH_NAME
 ```
