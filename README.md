@@ -52,7 +52,7 @@ __Action__ FileName__ : __Description__
 TYPE/BRANCH_NAME
 ```
 - TYPE
-  - dev: 일반적인 개발 사항
+  - dev: 일반적인 개발 사항
   - fix: 기존에 개발된 내용 수정
   - doc: README등 문서 관령 사항
 
