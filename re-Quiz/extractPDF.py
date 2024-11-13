@@ -49,7 +49,7 @@ with pdfplumber.open(pdf_path) as pdf:
 
 json_output = json.dumps(terms_data, ensure_ascii=False, indent=4)
 
-with open("economy.json", "w", encoding="utf-8") as json_file:
+with open("economy_ver1.json", "w", encoding="utf-8") as json_file:
     json_file.write(json_output)
 
 print("추출 완료")
